@@ -1,2 +1,70 @@
-body { font: 16px/1.6 system-ui,sans-serif; color:#263238; background:#faf6f1; margin:0; }
-main { max-width:800px; margin:6rem auto; padding:2rem; background:white; border-radius:1rem; }
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #fffaf5;
+    color: #333;
+}
+
+header {
+    padding: 20px 8%;
+    background: #8b4513;
+    color: white;
+}
+
+header h1 {
+    font-size: 24px;
+}
+
+nav a {
+    color: white;
+    margin-right: 20px;
+    text-decoration: none;
+}
+
+.banner {
+    padding: 60px 20px;
+    text-align: center;
+    background: #fce4ce;
+}
+
+main {
+    min-height: 80vh;
+}
+
+#danh-sach-banh {
+    padding: 30px 8%;
+}
+
+.cake-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(auto-fit, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.cake-card {
+    padding: 20px;
+    border-radius: 12px;
+    background: white;
+    box-shadow: 0 3px 12px #00000015;
+}
+
+.cake-card h3 {
+    color: #8b4513;
+}
+
+.price {
+    font-weight: bold;
+    color: #c0392b;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    background: #eee;
+}
