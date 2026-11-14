@@ -1,0 +1,11 @@
+.git
+**/bin
+**/obj
+**/TestResults
+.env
+.env.*
+backups
+artifacts
+docs
+
+**/__pycache__

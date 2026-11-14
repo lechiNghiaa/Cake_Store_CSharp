@@ -1,0 +1,64 @@
+# ==================== TRIỂN KHAI — WEB / API / SQL SERVER / MIGRATOR ====================
+name: tiembanh
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_PID: Developer
+      MSSQL_SA_PASSWORD: ${SQL_PASSWORD:?run_Initialize_first}
+    volumes:
+      - sql_data:/var/opt/mssql
+    networks: [backend]
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P \"$$MSSQL_SA_PASSWORD\" -C -Q 'SELECT 1' -b -o /dev/null"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+    restart: unless-stopped
+    logging: &logs
+      driver: json-file
+      options: { max-size: "10m", max-file: "3" }
+  migrate:
+    build: { context: ., dockerfile: deploy/Dockerfile, target: migrate }
+    environment:
+      ConnectionStrings__Bakery: Server=db,1433;Database=TiemBanh;User Id=sa;Password=${SQL_PASSWORD};Encrypt=True;TrustServerCertificate=True
+      Seed__AdminPassword: ${ADMIN_PASSWORD:?set_ADMIN_PASSWORD}
+      Seed__Demo: ${SEED_DEMO:-true}
+    depends_on:
+      db: { condition: service_healthy }
+    networks: [backend]
+    restart: "no"
+    logging: *logs
+  api:
+    build: { context: ., dockerfile: deploy/Dockerfile, target: api }
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__Bakery: Server=db,1433;Database=TiemBanh;User Id=sa;Password=${SQL_PASSWORD};Encrypt=True;TrustServerCertificate=True
+      Jwt__SigningKey: ${JWT_KEY:?set_JWT_KEY}
+      Uploads__Root: /app/uploads
+    ports: ["127.0.0.1:8081:8080"]
+    volumes: ["cake_uploads:/app/uploads"]
+    depends_on:
+      db: { condition: service_healthy }
+      migrate: { condition: service_completed_successfully }
+    networks: [frontend, backend]
+    restart: unless-stopped
+    logging: *logs
+  web:
+    build: { context: ., dockerfile: deploy/Dockerfile, target: web }
+    environment:
+      ReverseProxy__Clusters__api__Destinations__primary__Address: http://api:8080/
+    ports: ["127.0.0.1:8080:8080"]
+    depends_on:
+      api: { condition: service_started }
+    networks: [frontend]
+    restart: unless-stopped
+    logging: *logs
+networks:
+  frontend:
+  backend: { internal: true }
+volumes:
+  sql_data:
+  cake_uploads:

@@ -1,0 +1,11 @@
+**/bin/
+**/obj/
+**/TestResults/
+.env
+.env.*
+!.env.example
+.vs/
+.vscode/
+**/uploads/
+backups/
+artifacts/

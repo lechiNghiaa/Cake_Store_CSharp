@@ -1,0 +1,10 @@
+1) Giải nén ZIP. CHỈ sao chép thư mục TiemBanh vào gốc repo Cake_Store_CSharp.
+   Không xóa hoặc thay github-web/ và .github/ cũ.
+2) Trong repo, mở terminal:
+   git switch main
+   git pull origin main
+   git add TiemBanh
+   git commit -m "chore: add TiemBanh .NET 9 three-layer project scaffold"
+   git push origin main
+3) Mỗi thành viên clone/pull main rồi tạo branch theo docs/KE_HOACH_4_THANH_VIEN.md.
+4) Lưu ý: Docker compose và Dockerfile trong khung là bản định hướng, chưa thể chạy ngay.
