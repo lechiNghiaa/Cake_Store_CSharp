@@ -1,39 +1,47 @@
-
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
-    <title>Tiệm Bánh - Trang chủ</title>
-    <link rel="stylesheet" href="css/site.css">
+    <!-- TOÀN BỘ GIAO DIỆN — Tiệm Bánh / tách cấu trúc HTML, trình bày CSS, hành vi JS. -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Tiệm Bánh — bánh mới mỗi ngày, đặt hàng và thanh toán khi nhận.">
+    <title>Tiệm Bánh · Bánh mới mỗi ngày</title>
+    <link rel="stylesheet" href="/css/site.css">
+    <script src="/js/app.js" defer></script>
 </head>
 <body>
-    <header>
-        <h1>TIỆM BÁNH TRỰC TUYẾN</h1>
-        <nav>
-            <a href="index.html">Trang chủ</a>
-            <a href="#danh-sach-banh">Sản phẩm</a>
-        </nav>
+    <!-- Điều hướng — hiển thị đúng vai trò; API tiếp tục kiểm tra quyền. -->
+    <header class="header">
+        <a href="#catalog" class="brand" aria-label="Tiệm Bánh — Trang chủ"><span class="brand-mark">tb.</span><span>Tiệm Bánh<small>BAKED WITH CARE</small></span></a>
+        <nav aria-label="Điều hướng chính"><button data-page="catalog" class="nav active">Danh sách bánh</button><button data-page="cart" class="nav customer-nav">Giỏ hàng <span id="cart-count">0</span></button><button data-page="orders" class="nav signed-nav" hidden>Theo dõi đơn hàng</button><button data-page="cod" class="nav employee-nav" hidden>Đối soát COD</button><button data-page="customers" class="nav employee-nav" hidden>Tra cứu khách hàng</button></nav>
+        <div class="account"><button id="profile-open" class="link signed-nav" hidden>Hồ sơ cá nhân</button><button id="auth-open" class="button small">Đăng nhập</button><button id="logout" class="link" hidden>Đăng xuất</button></div>
     </header>
-
     <main>
-        <section class="banner">
-            <h2>Chào mừng đến với Tiệm Bánh</h2>
-            <p>Khám phá các loại bánh thơm ngon.</p>
+        <!-- UC04–UC05 — Danh sách bánh / Tìm kiếm bánh. -->
+        <section id="page-catalog" class="page">
+            <div class="hero"><div><span class="eyebrow">TƯƠI MỚI TỪ LÒ BÁNH</span><h1>Một chút ngọt ngào,<br>cho ngày thêm vui.</h1><p>Bánh thành phẩm được chuẩn bị mỗi ngày.<br>Chọn món bạn thích, thanh toán khi nhận bánh.</p><a href="#cakes" class="button">Khám phá bánh <span aria-hidden="true">↗</span></a><div class="hero-note"><span>✦ Bánh mới mỗi ngày</span><span>✦ Thanh toán COD</span></div></div><div class="hero-art"><img src="/images/ảnh%20chính.webp" alt="Bánh của Tiệm Bánh" width="500" height="380"><span class="art-label">A LITTLE SWEETNESS<br><b>made for your day.</b></span></div></div>
+            <div class="section-heading" id="cakes"><div><span class="eyebrow">THỰC ĐƠN CỦA TIỆM</span><h2>Chọn một món ngon</h2></div><span id="catalog-count" class="muted"></span></div>
+            <!-- Tìm kiếm bánh — tên giống CatalogService.ListAsync và app.js. -->
+            <form id="search-form" class="filters"><label class="search"><span aria-hidden="true">⌕</span><input id="search" name="search" placeholder="Tìm kiếm bánh theo tên hoặc mã…" aria-label="Tìm kiếm bánh"></label><label><span class="sr-only">Danh mục bánh</span><select id="category"><option value="">Tất cả danh mục</option></select></label><button class="button secondary" type="submit">Tìm kiếm bánh</button></form>
+            <div id="catalog" class="cake-grid" aria-live="polite"></div><div class="pagination"><button id="prev-page" class="button secondary small">Trang trước</button><span id="page-label"></span><button id="next-page" class="button secondary small">Trang sau</button></div>
         </section>
-
-        <section id="danh-sach-banh">
-            <h2>Danh sách bánh</h2>
-            <div id="cake-list" class="cake-grid"></div>
-        </section>
+        <!-- UC06–UC07 — Giỏ hàng và đặt COD / Tính tổng COD. -->
+        <section id="page-cart" class="page" hidden><div class="section-heading"><div><span class="eyebrow">MÓN NGON BẠN ĐÃ CHỌN</span><h1>Giỏ hàng và đặt COD</h1></div></div><p id="guest-receipt" class="panel" role="status" hidden></p><div class="checkout"><div id="cart-lines" class="panel"></div><form id="checkout-form" class="panel"><h2>Thông tin nhận bánh</h2><label>Người nhận<input name="recipient" required maxlength="100" autocomplete="name"></label><label>Số điện thoại<input name="phone" required maxlength="30" autocomplete="tel"></label><label>Địa chỉ giao hàng<textarea name="address" required maxlength="500" autocomplete="street-address"></textarea></label><label>Ghi chú<textarea name="note" maxlength="500"></textarea></label><div id="cart-total" class="total"></div><p class="hint">Thanh toán COD khi nhận bánh. Phí giao hàng 20.000 ₫. Tồn và giá được kiểm tra lại khi đặt đơn.</p><button class="button full" id="place-order">Đặt hàng COD</button></form></div></section>
+        <!-- UC08–UC09 / UC14 — Theo dõi đơn hàng, Xử lý đơn hàng, Giao hàng và ghi nhận COD. -->
+        <section id="page-orders" class="page" hidden><div class="section-heading"><div><span class="eyebrow">HÀNH TRÌNH CỦA MÓN BÁNH</span><h1 id="orders-title">Theo dõi đơn hàng</h1></div><button id="refresh-orders" class="button secondary">Làm mới đơn hàng</button></div><div id="orders" aria-live="polite"></div></section>
+        <!-- UC11 — Đối soát COD / Lập kỳ bàn giao COD / Điều chỉnh kỳ chưa duyệt. -->
+        <section id="page-cod" class="page" hidden><div class="section-heading"><div><span class="eyebrow">VẬN HÀNH CỬA HÀNG</span><h1>Đối soát COD</h1></div><button id="refresh-cod" class="button secondary">Làm mới COD</button></div><form id="period-form" class="panel"><h2 id="period-form-title">Lập kỳ bàn giao COD</h2><div id="receipts"></div><button class="button" type="submit">Lưu kỳ bàn giao COD</button><button class="button secondary" type="button" id="period-reset">Tạo kỳ mới</button></form><h2>Các kỳ bàn giao COD</h2><div id="periods"></div></section>
+        <!-- UC15 — Tra cứu khách hàng (Nhân viên không có nút khóa/mở). -->
+        <section id="page-customers" class="page" hidden><div class="section-heading"><h1>Tra cứu khách hàng</h1></div><form id="customer-search-form" class="filters"><input id="customer-search" placeholder="Tên, tài khoản hoặc số điện thoại" aria-label="Tìm kiếm khách hàng"><button class="button">Tìm kiếm khách hàng</button></form><div id="customers" class="panel table-wrap"></div></section>
+        <!-- UC03 — Hồ sơ cá nhân. -->
+        <section id="page-profile" class="page" hidden><div class="section-heading"><h1>Hồ sơ cá nhân</h1></div><form id="profile-form" class="panel narrow"><label>Họ tên<input name="fullName" required maxlength="100"></label><label>Số điện thoại<input name="phone" maxlength="30"></label><label>Địa chỉ<textarea name="address" maxlength="500"></textarea></label><button class="button">Lưu hồ sơ cá nhân</button></form></section>
+        <!-- Admin — giới hạn giao diện theo báo cáo, quản trị trên WinForms. -->
+        <section id="page-admin" class="page" hidden><div class="panel"><span class="eyebrow">QUẢN TRỊ HỆ THỐNG</span><h1>Xin chào, Admin</h1><p>Các chức năng Quản lý bánh và tồn kho, Quản lý nhân viên, Quản lý khách hàng, Báo cáo thống kê và Duyệt/Khóa kỳ COD được thực hiện trên ứng dụng WinForms Admin.</p><button class="button" id="admin-profile">Hồ sơ cá nhân</button></div></section>
     </main>
-
-    <footer>
-        <p>Hệ thống quản lý tiệm bánh trực tuyến</p>
-    </footer>
-
-    <script src="js/site.js"></script>
+    <footer><a class="brand" href="#catalog">Tiệm Bánh<span class="brand-mark">tb.</span></a><p>Bánh mới mỗi ngày. Niềm vui trong từng miếng nhỏ.</p><span>Thanh toán khi nhận · Giao hàng nội bộ</span></footer>
+    <!-- UC01–UC02 — Đăng nhập / Đăng ký, form có nhãn và điều kiện nhập. -->
+    <dialog id="auth-dialog"><button class="close" id="auth-close" aria-label="Đóng">×</button><span class="eyebrow">CHÀO MỪNG ĐẾN TIỆM</span><h2 id="auth-title">Đăng nhập</h2><form id="auth-form"><label>Tên đăng nhập<input name="userName" required minlength="3" maxlength="60" autocomplete="username"></label><label>Mật khẩu<input name="password" type="password" required maxlength="100" autocomplete="current-password"></label><div id="register-fields" hidden><label>Họ tên<input name="fullName" maxlength="100" autocomplete="name"></label><label>Số điện thoại<input name="phone" maxlength="30" autocomplete="tel"></label></div><p id="auth-error" class="error" role="alert"></p><button class="button full" id="auth-submit">Đăng nhập</button></form><button class="link auth-toggle" id="auth-toggle">Chưa có tài khoản? Đăng ký</button></dialog>
+    <!-- Log & error — vùng thông báo dùng cho mọi chức năng. -->
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 </body>
 </html>
