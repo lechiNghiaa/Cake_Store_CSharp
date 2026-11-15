@@ -1,3 +1,56 @@
-<!doctype html>
-<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Tiệm Bánh – Khung dự án</title><link rel="stylesheet" href="css/site.css"></head>
-<body><main><h1>Hệ thống quản lý tiệm bánh</h1><p>Khung dự án .NET 9 · Kiến trúc 3 lớp · Nhóm 02</p><p>Các chức năng được bổ sung dần qua các nhánh thành viên.</p></main></body></html>
+
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Tiệm Bánh - Trang chủ</title>
+    <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+    <header>
+        <h1>TIỆM BÁNH TRỰC TUYẾN</h1>
+        <nav>
+            <a href="index.html">Trang chủ</a>
+            <a href="#danh-sach-banh">Sản phẩm</a>
+        </nav>
+    </header>
+
+    <main>
+        <section class="banner">
+            <h2>Chào mừng đến với Tiệm Bánh</h2>
+            <p>Khám phá các loại bánh thơm ngon.</p>
+        </section>
+
+        <section id="danh-sach-banh">
+            <h2>Danh sách bánh</h2>
+
+            <!-- UC05: Tìm kiếm bánh -->
+            <div class="search-box">
+                <input type="text"
+                       id="txtTimKiem"
+                       placeholder="Nhập tên hoặc mã bánh...">
+
+                <select id="cboDanhMuc">
+                    <option value="">Tất cả danh mục</option>
+                </select>
+
+                <button id="btnTimKiem">Tìm kiếm</button>
+                <button id="btnLamMoi">Làm mới</button>
+            </div>
+
+            <p id="ketQuaTimKiem"></p>
+
+            <div id="cake-list" class="cake-grid"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Hệ thống quản lý tiệm bánh trực tuyến</p>
+    </footer>
+
+    <script src="js/site.js"></script>
+</body>
+</html>
