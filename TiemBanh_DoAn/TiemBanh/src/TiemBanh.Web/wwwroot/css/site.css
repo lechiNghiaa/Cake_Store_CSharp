@@ -75,3 +75,64 @@ main {
     background: white;
     border-radius: 12px;
 }
+
+/* UC05 - Giao diện tìm kiếm bánh */
+.search-box {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.search-box input,
+.search-box select {
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+}
+
+.search-box input {
+    flex: 2;
+    min-width: 200px;
+}
+
+.search-box select {
+    flex: 1;
+    min-width: 170px;
+}
+
+.search-box button {
+    padding: 12px 20px;
+    background: #8b4513;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.search-box button:hover {
+    background: #a0522d;
+}
+
+#btnLamMoi {
+    background: #777;
+}
+
+#ketQuaTimKiem {
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.cake-category {
+    color: #777;
+    font-size: 14px;
+}
+
+.empty-message {
+    grid-column: 1 / -1;
+    padding: 30px;
+    text-align: center;
+    background: white;
+    border-radius: 12px;
+}
