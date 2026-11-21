@@ -78,6 +78,18 @@ Mỗi nhiệm vụ phải có: mã UC; tên chức năng giống UI; project/fil
 
 **Định nghĩa hoàn thành:** đúng hợp đồng và quyền; luật chỉ có một nơi trong Business; DAL giữ ràng buộc; log/error không lộ bí mật; migration được version hóa; kiểm thử có kết quả; giao diện có loading/rỗng/lỗi; chú thích khớp tên UI; tài liệu cập nhật.
 
-## 8. Đánh giá có phương pháp
+## 8. Quy ước chú thích cấp lớn/cấp nhỏ
+
+Cấp module: `// ==================== UC07 — ĐẶT HÀNG COD ====================`.
+Cấp nghiệp vụ nhỏ: `// Tính tổng COD — tiền bánh theo snapshot + phí giao hàng.`
+HTML dùng `<!-- ... -->`, CSS dùng `/* ... */`. Mỗi khối chú thích nêu chức năng/mục đích hoặc bất biến, không cần chú thích từng phép gán hiển nhiên. EF migration là mã phát sinh được đánh dấu auto-generated; quy tắc nghiệp vụ nằm ở service và Rules, không sửa tùy ý migration đã áp dụng.
+
+## 9. Đánh giá có phương pháp
 
 Đánh giá theo mục tiêu–sản phẩm–bằng chứng: chức năng (truy vết UC); nhất quán (review route/DTO/enum/schema); tính đúng (test bất biến); triển khai (Compose/migration/volume); vận hành (log/health/backup). Kiểm thử SQLite không thay SQL Server về isolation/concurrency. Ngưỡng p95/RPO/RTO được ghi là tiêu chí khi chưa có phép đo. Xem biên bản kiểm thử kèm gói mã nguồn.
+
+## 10. Cập nhật triển khai repository (21/11/2026)
+
+Repository tổ chức `src/TiemBanh.Api/` với các Controller tách theo miền chức năng (Auth, Cakes, Orders, Management), thay vì giữ một file `Controllers.cs` như ZIP gốc. Đây là thay đổi tổ chức mã nguồn, không phải bổ sung tầng kiến trúc mới.
+
+CI trong `.github/workflows/tiembanh-ci.yml` chạy restore/build + xUnit, test Node.js cho tài nguyên Web, rồi build image Docker API/Web. Lần chạy GitHub Actions `44875598058` đạt trạng thái success; kết luận chỉ áp dụng trong phạm vi các job đó. Việc khởi tạo SQL Server, migration/seed, kiểm thử giao dịch đồng thời, WinForms trên Windows, trình duyệt thực và backup/restore vẫn cần minh chứng riêng.
