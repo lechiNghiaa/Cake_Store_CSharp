@@ -40,3 +40,9 @@ Lệnh assign: driverId; complete/fail: deliveryAttemptId của lần giao mới
 ## Thứ tự gọi an toàn
 
 Client đọc đối tượng → gửi Version đang thấy → server kiểm quyền/phạm vi/trạng thái → transaction → trả phiên bản mới. Khi 409, tải lại; đặt hàng gặp mất phản hồi phải giữ RequestId. Không tự tăng Version ở UI để thử vượt kiểm tra.
+
+## Cấu trúc Controller trên GitHub (21/11/2026)
+
+Bản ZIP bàn giao đặt nhiều Controller trong `src/TiemBanh.Api/Controllers.cs`. Repository hiện tại tổ chức thành các file riêng: `AuthController.cs`, `CakesController.cs`, `OrdersController.cs`, `ManagementController.cs`. Việc tách file không yêu cầu thay đổi URL; route thực tế vẫn do attribute routing trong từng lớp quyết định. Không thêm `Controllers.cs` nguyên khối khi các lớp đã được tách vì có nguy cơ khai báo trùng.
+
+Khi kiểm thử qua Docker Compose, API local dự kiến dùng `http://localhost:8081`, Web `http://localhost:8080`; Web chuyển tiếp `/api/*` đến API qua YARP. Swagger chỉ bật khi ASP.NET Core ở môi trường Development. Các endpoint cần kiểm tra với quyền và dữ liệu thực tế, không suy ra chức năng hoàn chỉnh chỉ từ danh sách route.
