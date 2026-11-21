@@ -43,6 +43,21 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
+app.Use(async(ctx,next)=>{
+ try {await next();}
+ catch(Exception ex){
+  var status=ex is BusinessException b?b.Status:ex is DbUpdateConcurrencyException?409:ex is DbUpdateException?409:ex is Microsoft.Data.SqlClient.SqlException sql&&sql.Number==1205?409:500;
+  var code=ex is BusinessException e?e.Code:status==409?"DATA_CONFLICT":"INTERNAL_ERROR";
+  app.Logger.LogError(ex,"Request failed {TraceId} {Code}",ctx.TraceIdentifier,code);
+  if(!ctx.Response.HasStarted){ctx.Response.StatusCode=status;await ctx.Response.WriteAsJsonAsync(new{type="urn:tiembanh:"+code.ToLowerInvariant(),title=status==500?"Lỗi hệ thống":ex is BusinessException?ex.Message:"Dữ liệu xung đột, hãy tải lại hoặc gửi lại cùng mã yêu cầu.",status,code,traceId=ctx.TraceIdentifier},options:(System.Text.Json.JsonSerializerOptions?)null,contentType:"application/problem+json");}
+ }
+});
+// Log & error — chuẩn hóa cả 401/403/404/429 khi middleware không có body.
+app.UseStatusCodePages(async context=>{
+ var response=context.HttpContext.Response;
+ await response.WriteAsJsonAsync(new{title=response.StatusCode switch{401=>"Vui lòng đăng nhập.",403=>"Bạn không có quyền thực hiện chức năng này.",404=>"Không tìm thấy tài nguyên.",429=>"Quá nhiều yêu cầu, vui lòng thử lại sau.",_=>"Yêu cầu không thể xử lý."},status=response.StatusCode,traceId=context.HttpContext.TraceIdentifier});
+});
+
 app.UseAuthentication();
 app.UseAuthorization();
 if (app.Environment.IsDevelopment()) { app.UseSwagger(); app.UseSwaggerUI(); }
