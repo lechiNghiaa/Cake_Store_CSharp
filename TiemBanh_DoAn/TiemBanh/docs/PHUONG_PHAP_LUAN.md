@@ -78,12 +78,6 @@ Mỗi nhiệm vụ phải có: mã UC; tên chức năng giống UI; project/fil
 
 **Định nghĩa hoàn thành:** đúng hợp đồng và quyền; luật chỉ có một nơi trong Business; DAL giữ ràng buộc; log/error không lộ bí mật; migration được version hóa; kiểm thử có kết quả; giao diện có loading/rỗng/lỗi; chú thích khớp tên UI; tài liệu cập nhật.
 
-## 8. Quy ước chú thích cấp lớn/cấp nhỏ
-
-Cấp module: `// ==================== UC07 — ĐẶT HÀNG COD ====================`.
-Cấp nghiệp vụ nhỏ: `// Tính tổng COD — tiền bánh theo snapshot + phí giao hàng.`
-HTML dùng `<!-- ... -->`, CSS dùng `/* ... */`. Mỗi khối chú thích nêu chức năng/mục đích hoặc bất biến, không cần chú thích từng phép gán hiển nhiên. EF migration là mã phát sinh được đánh dấu auto-generated; quy tắc nghiệp vụ nằm ở service và Rules, không sửa tùy ý migration đã áp dụng.
-
-## 9. Đánh giá có phương pháp
+## 8. Đánh giá có phương pháp
 
 Đánh giá theo mục tiêu–sản phẩm–bằng chứng: chức năng (truy vết UC); nhất quán (review route/DTO/enum/schema); tính đúng (test bất biến); triển khai (Compose/migration/volume); vận hành (log/health/backup). Kiểm thử SQLite không thay SQL Server về isolation/concurrency. Ngưỡng p95/RPO/RTO được ghi là tiêu chí khi chưa có phép đo. Xem biên bản kiểm thử kèm gói mã nguồn.
