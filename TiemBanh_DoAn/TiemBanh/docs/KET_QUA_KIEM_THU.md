@@ -1,6 +1,20 @@
 # Biên bản xác minh bản bàn giao
 
-## 1. Kết quả quan sát
+> **Cập nhật GitHub ngày 21/11/2026:** Bảng trong mục 1 là kết quả ở **môi trường kiểm chứng ban đầu của ZIP**, giữ lại để truy vết, không phải kết quả đo mới trên GitHub.
+
+## 0. Xác minh CI trên GitHub (21/11/2026)
+
+- Repository: `lechiNghiaa/Cake_Store_CSharp`; workflow: `.github/workflows/tiembanh-ci.yml`.
+- Run đã xác nhận **success**: [`44875598058`](https://github.com/lechiNghiaa/Cake_Store_CSharp/actions/runs/44875598058), commit `ee45d2e`.
+- `dotnet-tests`: restore/build và chạy bộ xUnit trên GitHub runner; kết quả job đạt.
+- `web-tests`: chạy `node --test tests/web/*.test.cjs`; kết quả job đạt. Đây là test hợp đồng HTML/tài nguyên tĩnh, **không** phải browser end-to-end.
+- `docker-build`: build image **API và Web**; job đạt. **Không** đồng nghĩa Docker Compose đã chạy thành công cùng SQL Server.
+- Những lần chạy trước có lúc fail do `BakeryStore` chưa được đồng bộ; khi Data Access được bổ sung, CI đã vượt qua các bước hiện có.
+- Chưa có bằng chứng trong run CI về SQL Server runtime, chạy migration + seed trong container, kiểm thử Web trên trình duyệt, WinForms Windows, hiệu năng hoặc diễn tập restore.
+
+
+
+## 1. Kết quả quan sát trong ZIP bàn giao (lịch sử)
 
 | Hạng mục | Kết quả | Phạm vi bằng chứng |
 |---|---|---|

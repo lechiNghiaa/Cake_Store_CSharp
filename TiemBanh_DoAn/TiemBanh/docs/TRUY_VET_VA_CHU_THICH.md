@@ -28,3 +28,13 @@ Các file HTML, CSS, JS dùng đúng các tên ở cột thứ hai. Trong C# có
 - Bổ sung RequestHash để phân biệt RequestId gửi lại nhưng nội dung khác.
 - CodPeriod.CreatedById ghi nhận người lập; CodHandover thuộc kỳ nên không lặp ReceiverId.
 - Tên DTO/phương thức trong tài liệu sản phẩm này đối chiếu trực tiếp mã nguồn; sơ đồ phân tích trước là tài liệu nền.
+
+## Đối chiếu mã nguồn và kiểm thử (cập nhật 21/11/2026)
+
+- Business: `src/TiemBanh.Business/` gồm `AccountService.cs`, `CatalogService.cs`, `OrderService.cs`, `CodService.cs`, `Rules.cs`, `Contracts.cs`, `Bootstrap.cs`.
+- API: `src/TiemBanh.Api/` có bốn file Controller riêng; mỗi route cần được đối chiếu trực tiếp với phương thức trong file tương ứng.
+- Data Access: `src/TiemBanh.DataAccess/` có `BakeryStore.cs`, `BakeryDbContext.cs`, `DesignFactory.cs`, `Entities.cs` và `Migrations/`.
+- Kiểm thử tự động: `tests/TiemBanh.Tests/` (xUnit và tích hợp qua TestServer), `tests/web/ui-contract.test.cjs` (kiểm tra HTML/tài nguyên).
+- Kiểm thử SQL Server runtime: `tests/system_sqlserver.py` phải chạy riêng và lưu bằng chứng. Workflow CI hiện tại chỉ build Docker image API/Web, không chạy test SQL Server runtime.
+
+Bảng UC01–UC15 phía trên là **ma trận truy vết thiết kế**, không phải bảng xác nhận đã nghiệm thu từng UC trên trình duyệt hoặc SQL Server.
