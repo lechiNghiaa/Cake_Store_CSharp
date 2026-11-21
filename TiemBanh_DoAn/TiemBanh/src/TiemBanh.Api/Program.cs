@@ -1,48 +1,31 @@
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using TiemBanh.Business;
 using TiemBanh.DataAccess;
-
-var builder = WebApplication.CreateBuilder(args);
-builder.Logging.ClearProviders();
-builder.Logging.AddJsonConsole();
-var key = builder.Configuration["Jwt:SigningKey"]
-    ?? throw new InvalidOperationException("Thiếu Jwt__SigningKey.");
-if (Encoding.UTF8.GetByteCount(key) < 32)
-    throw new InvalidOperationException("JWT key phải có ít nhất 32 byte.");
-builder.Services.AddBakery(builder.Configuration);
-builder.Services.AddControllers().AddJsonOptions(o =>
-    o.JsonSerializerOptions.ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o =>
-{
-    o.TokenValidationParameters = new TokenValidationParameters
-    {
-        ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),
-        ValidateIssuer = true, ValidIssuer = "TiemBanh",
-        ValidateAudience = true, ValidAudience = "TiemBanhClients",
-        ValidateLifetime = true, ClockSkew = TimeSpan.FromSeconds(15)
-    };
-    o.Events = new JwtBearerEvents
-    {
-        OnTokenValidated = async ctx =>
-        {
-            var id = int.Parse(ctx.Principal!.FindFirstValue(ClaimTypes.NameIdentifier)!);
-            var stamp = ctx.Principal!.FindFirstValue("stamp");
-            var store = ctx.HttpContext.RequestServices.GetRequiredService<BakeryStore>();
-            if (!await store.Query<AppUser>().AnyAsync(x => x.Id == id && x.Active && x.SecurityStamp == stamp))
-                ctx.Fail("Tài khoản đã khóa hoặc phiên không còn hợp lệ.");
-        }
-    };
-});
-builder.Services.AddAuthorization();
-
-var app = builder.Build();
+// ==================== PRESENTATION — HTTP, JWT, LOG, ERROR ====================
+var builder=WebApplication.CreateBuilder(args);
+builder.Logging.ClearProviders();builder.Logging.AddJsonConsole();
+var key=builder.Configuration["Jwt:SigningKey"]??throw new InvalidOperationException("Thiếu Jwt__SigningKey.");
+if(Encoding.UTF8.GetByteCount(key)<32)throw new InvalidOperationException("JWT key phải có ít nhất 32 byte.");
+builder.Services.AddBakery(builder.Configuration);builder.Services.AddControllers().AddJsonOptions(o=>o.JsonSerializerOptions.ReferenceHandler=System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles);
+builder.Services.AddEndpointsApiExplorer();builder.Services.AddSwaggerGen();
+builder.Services.AddRateLimiter(o=>o.AddPolicy("auth",context=>RateLimitPartition.GetFixedWindowLimiter((context.Connection.RemoteIpAddress?.ToString()??"unknown")+(context.Request.Path=="/api/orders/guest"?"-guest":"-auth"),_=>new FixedWindowRateLimiterOptions{PermitLimit=15,Window=TimeSpan.FromMinutes(1),QueueLimit=0})).RejectionStatusCode=429);
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(o=>{
+ o.TokenValidationParameters=new TokenValidationParameters{ValidateIssuerSigningKey=true,IssuerSigningKey=new SymmetricSecurityKey(Encoding.UTF8.GetBytes(key)),ValidateIssuer=true,ValidIssuer="TiemBanh",ValidateAudience=true,ValidAudience="TiemBanhClients",ValidateLifetime=true,ClockSkew=TimeSpan.FromSeconds(15)};
+ // Đăng nhập / Khóa tài khoản — thu hồi hiệu lực token theo SecurityStamp.
+ o.Events=new JwtBearerEvents{OnTokenValidated=async ctx=>{
+  var id=int.Parse(ctx.Principal!.FindFirstValue(ClaimTypes.NameIdentifier)!);var stamp=ctx.Principal!.FindFirstValue("stamp");
+  var store=ctx.HttpContext.RequestServices.GetRequiredService<BakeryStore>();
+  if(!await store.Query<AppUser>().AnyAsync(x=>x.Id==id&&x.Active&&x.SecurityStamp==stamp))ctx.Fail("Tài khoản đã khóa hoặc phiên không còn hợp lệ.");
+ }};
+});builder.Services.AddAuthorization();
+var app=builder.Build();
+// Thiết kế thích ứng — lỗi có mã nghiệp vụ và traceId, không trả stack/SQL ra client.
 app.Use(async(ctx,next)=>{
  try {await next();}
  catch(Exception ex){
@@ -57,11 +40,11 @@ app.UseStatusCodePages(async context=>{
  var response=context.HttpContext.Response;
  await response.WriteAsJsonAsync(new{title=response.StatusCode switch{401=>"Vui lòng đăng nhập.",403=>"Bạn không có quyền thực hiện chức năng này.",404=>"Không tìm thấy tài nguyên.",429=>"Quá nhiều yêu cầu, vui lòng thử lại sau.",_=>"Yêu cầu không thể xử lý."},status=response.StatusCode,traceId=context.HttpContext.TraceIdentifier});
 });
-
-app.UseAuthentication();
-app.UseAuthorization();
-if (app.Environment.IsDevelopment()) { app.UseSwagger(); app.UseSwaggerUI(); }
-app.MapControllers();
-app.MapGet("/health/live", () => Results.Ok(new { status = "healthy" }));
+app.UseRateLimiter();app.UseAuthentication();app.UseAuthorization();
+var uploads=app.Configuration["Uploads:Root"]??Path.Combine(app.Environment.ContentRootPath,"uploads");Directory.CreateDirectory(uploads);
+app.UseStaticFiles(new StaticFileOptions{FileProvider=new Microsoft.Extensions.FileProviders.PhysicalFileProvider(uploads),RequestPath="/uploads"});
+if(app.Environment.IsDevelopment()){app.UseSwagger();app.UseSwaggerUI();}
+app.MapControllers();app.MapGet("/health/live",()=>Results.Ok(new{status="healthy"}));
+app.MapGet("/health/ready",async(BakeryStore store)=>await store.ReadyAsync()?Results.Ok(new{status="ready"}):Results.StatusCode(503));
 app.Run();
 public partial class Program { }
